@@ -2,7 +2,7 @@ FROM php:8.3-fpm
 
 # dépendances système
 RUN apt-get update && apt-get install -y \
-    git unzip zip curl libpq-dev libzip-dev \
+    git unzip zip curl nginx libpq-dev libzip-dev \
     && docker-php-ext-install pdo pdo_pgsql bcmath zip \
     && pecl install redis \
     && docker-php-ext-enable redis \
@@ -22,6 +22,7 @@ COPY . .
 
 RUN composer dump-autoload --optimize
 
+COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
 RUN chown -R www-data:www-data storage bootstrap/cache
 
