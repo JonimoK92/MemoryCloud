@@ -1,0 +1,31 @@
+FROM php:8.3-fpm
+
+# dépendances système
+RUN apt-get update && apt-get install -y \
+    git unzip zip curl libpq-dev libzip-dev \
+    && docker-php-ext-install pdo pdo_pgsql bcmath zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /var/www/html
+
+# Composer
+COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
+
+# 1. copier uniquement fichiers dépendances d'abord (cache Docker)
+COPY composer.json composer.lock ./
+
+RUN composer install --no-dev --optimize-autoloader --no-scripts
+
+# 2. ensuite le reste du code
+COPY . .
+
+RUN composer dump-autoload --optimize
+
+# permissions Laravel
+RUN chown -R www-data:www-data storage bootstrap/cache
+
+EXPOSE 9000
+
+CMD ["php-fpm"]
