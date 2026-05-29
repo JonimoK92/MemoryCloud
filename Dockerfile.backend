@@ -13,6 +13,7 @@ WORKDIR /var/www/html
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY composer.json composer.lock ./
+
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 COPY . .
@@ -23,6 +24,9 @@ RUN chown -R www-data:www-data storage bootstrap/cache
 
 COPY docker/nginx/default.conf /etc/nginx/conf.d/default.conf
 
+COPY start.sh /start.sh
+RUN chmod +x /start.sh
+
 EXPOSE 10000
 
-CMD php-fpm -D && nginx -g "daemon off;"
+CMD ["/start.sh"]
