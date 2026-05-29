@@ -10,22 +10,21 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /var/www/html
 
-# Composer
+
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# 1. copier uniquement fichiers dépendances d'abord (cache Docker)
+
 COPY composer.json composer.lock ./
 
 RUN composer install --no-dev --optimize-autoloader --no-scripts
 
-# 2. ensuite le reste du code
 COPY . .
 
 RUN composer dump-autoload --optimize
 
-# permissions Laravel
+
 RUN chown -R www-data:www-data storage bootstrap/cache
 
-EXPOSE 9000
+EXPOSE 80
 
-CMD ["php-fpm"]
+CMD sh -c "php-fpm -D && nginx -g 'daemon off;'"
