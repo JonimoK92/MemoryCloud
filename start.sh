@@ -1,6 +1,7 @@
 #!/bin/sh
 
 echo "Starting Laravel..."
+echo "DB HOST = $DB_HOST"
 
 php artisan optimize:clear
 
