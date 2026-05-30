@@ -2,6 +2,7 @@
 
 echo "Starting MemoryCloud..."
 
+rm -rf bootstrap/cache/*.php
 chmod -R 775 storage bootstrap/cache
 
 echo "Waiting for DB..."
@@ -16,3 +17,4 @@ php artisan config:cache
 php artisan migrate --force
 
 php-fpm -F
+nginx -g "daemon off;"
