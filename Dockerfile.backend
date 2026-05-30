@@ -18,8 +18,6 @@ RUN composer install --no-dev --optimize-autoloader --no-scripts
 
 COPY . .
 
-RUN rm -rf bootstrap/cache/*.php
-
 RUN composer dump-autoload --optimize
 
 RUN mkdir -p storage/logs \

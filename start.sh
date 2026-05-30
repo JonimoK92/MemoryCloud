@@ -1,13 +1,18 @@
 #!/bin/sh
 
-echo "Starting Laravel..."
+echo "Starting MemoryCloud..."
 
-php artisan optimize:clear
-rm -rf bootstrap/cache/*.php
+chmod -R 775 storage bootstrap/cache
 
-php artisan tinker --execute="dump(env('DB_HOST'));"
+echo "Waiting for DB..."
+
+sleep 5
+
+php artisan config:clear
+php artisan cache:clear
+
+php artisan config:cache
 
 php artisan migrate --force
 
-php-fpm -D
-nginx -g "daemon off;"
+php-fpm -F
