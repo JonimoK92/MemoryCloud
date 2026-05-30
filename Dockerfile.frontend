@@ -1,13 +1,28 @@
-FROM node:20-slim
+# Build stage
+FROM node:20-slim AS build
 
 WORKDIR /app
 
 COPY package*.json ./
-
 RUN npm ci
 
 COPY . .
 
+# IMPORTANT : build production Vite
+RUN npm run build
+
+
+# Runtime stage (optionnel mais propre)
+FROM node:20-slim
+
+WORKDIR /app
+
+# on copie uniquement le build
+COPY --from=build /app/public/build ./public/build
+
+# (optionnel si tu veux servir statiques)
+RUN npm install -g serve
+
 EXPOSE 5173
 
-CMD ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+CMD ["serve", "-s", ".", "-l", "5173"]
