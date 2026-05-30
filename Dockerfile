@@ -9,18 +9,11 @@ WORKDIR /var/www/html
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
 COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader --no-scripts
+RUN composer install --no-dev --optimize-autoloader
 
 COPY . .
 
-RUN npm install
-RUN npm run build
-
-RUN composer install --no-dev --optimize-autoloader --no-scripts
-
-RUN php artisan package:discover --ansi || true
-
-RUN mkdir -p storage/logs bootstrap/cache \
+RUN mkdir -p storage bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 

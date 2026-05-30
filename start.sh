@@ -2,11 +2,11 @@
 
 echo "Starting MemoryCloud..."
 
+export PORT=${PORT:-10000}
+
+rm -rf bootstrap/cache/*.php
 
 php artisan optimize:clear
-rm -f bootstrap/cache/config.php
-
-echo "DB HOST = $DB_HOST"
 
 echo "Waiting DB..."
 sleep 5
