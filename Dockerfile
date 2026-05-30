@@ -2,18 +2,25 @@ FROM php:8.3-fpm
 
 RUN apt-get update && apt-get install -y \
     git unzip zip curl libpq-dev libzip-dev nginx \
+    nodejs npm \
     && docker-php-ext-install pdo pdo_pgsql bcmath zip
 
 WORKDIR /var/www/html
 
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-COPY composer.json composer.lock ./
-RUN composer install --no-dev --optimize-autoloader
-
 COPY . .
 
-RUN mkdir -p storage bootstrap/cache \
+RUN npm install
+RUN npm run build
+
+
+RUN composer install --no-dev --optimize-autoloader
+
+RUN php artisan package:discover --ansi || true
+
+
+RUN mkdir -p storage/logs bootstrap/cache \
     && chown -R www-data:www-data storage bootstrap/cache \
     && chmod -R 775 storage bootstrap/cache
 

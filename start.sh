@@ -2,18 +2,17 @@
 
 echo "Starting MemoryCloud..."
 
-export PORT=${PORT:-10000}
-
-rm -rf bootstrap/cache/*.php
-
-php artisan optimize:clear
-
-echo "Waiting DB..."
-sleep 5
-
-php artisan migrate --force || true
-
+# permissions (Render reset souvent)
 chmod -R 775 storage bootstrap/cache
 
-php-fpm -D
-nginx -g "daemon off;"
+# clean Laravel cache
+php artisan optimize:clear
+
+# config cache
+php artisan config:cache
+
+# migrations auto
+php artisan migrate --force
+
+# start PHP-FPM
+php-fpm -F
