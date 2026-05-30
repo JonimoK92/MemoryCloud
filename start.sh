@@ -2,12 +2,18 @@
 
 echo "Starting MemoryCloud..."
 
-rm -rf bootstrap/cache/*.php
 
 php artisan optimize:clear
-php artisan config:clear
+rm -f bootstrap/cache/config.php
 
-php artisan migrate --force
+echo "DB HOST = $DB_HOST"
+
+echo "Waiting DB..."
+sleep 5
+
+php artisan migrate --force || true
+
+chmod -R 775 storage bootstrap/cache
 
 php-fpm -D
 nginx -g "daemon off;"
