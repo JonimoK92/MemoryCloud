@@ -23,9 +23,9 @@ export default function Memories() {
                     {memories.map((memory) => (
                         <div key={memory.id} className="memory_card">
 
-                            {memory.media && (
+                            {memory.media.url && (
                                 <img
-                                    src={memory.media}
+                                    src={memory.media.url}
                                     alt="memory"
                                     className="memory_image"
                                 />

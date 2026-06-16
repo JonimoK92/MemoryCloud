@@ -16,6 +16,7 @@ return new class extends Migration
             $table->string('title');
             $table->text('description')->nullable();
             $table->string('media');
+            $table->string('media_id');
             $table->date('memory_date')->nullable();
             $table->time('memory_time')->nullable();
             $table->string('location')->nullable();

@@ -78,14 +78,8 @@ class MemoryController extends Controller
      * Remove the specified resource from storage.
      */
     public function destroy(string $id) {
-        $memory = Memory::where('id', $id)
-        ->where('user_id', auth()->id()) 
-        ->firstOrFail(); 
-        
-        $memory->delete(); 
-        
-        return response()->json([
-            'message' => 'Suppression du souvenir'
-        ]);
+        return response()->json(
+            $this->memoryService->delete($id)
+        );
     }
 }

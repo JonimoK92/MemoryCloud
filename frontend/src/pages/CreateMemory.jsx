@@ -14,8 +14,15 @@ export default function CreateMemory() {
     async function handleCreateMemory(event) {
         event.preventDefault();
 
-        if (!title.trim() || !description.trim()) return;
-        if (!file) return;
+        if (!title.trim() || !description.trim()) {
+            alert("Titre et description obligatoires");
+            return;
+        }
+
+        if (!file) {
+            alert("Fichier obligatoire");
+            return;
+        }
 
         const formData = new FormData();
         formData.append("title", title);
@@ -34,15 +41,14 @@ export default function CreateMemory() {
 
     return (
         <div className="memory_page">
+
             <div className="memory_form">
 
                 <form onSubmit={handleCreateMemory}>
 
                     <h3>Créer un souvenir</h3>
 
-                    <p className="separator">
-                        <span></span>
-                    </p>
+                    <p className="separator"><span></span></p>
 
                     <div className="input_box">
                         <label>Titre</label>
@@ -50,6 +56,7 @@ export default function CreateMemory() {
                             type="text"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
+                            required
                         />
                     </div>
 
@@ -59,6 +66,7 @@ export default function CreateMemory() {
                             type="text"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
+                            required
                         />
                     </div>
 
@@ -67,16 +75,21 @@ export default function CreateMemory() {
                         <input
                             type="file"
                             onChange={(e) => setFile(e.target.files[0])}
+                            required
                         />
                     </div>
 
-                    <button type="submit">
+                    <button
+                        type="submit"
+                        disabled={createMemory.isPending}
+                    >
                         {createMemory.isPending ? "Création..." : "Créer"}
                     </button>
 
                 </form>
 
             </div>
+
         </div>
     );
 }

@@ -22,20 +22,19 @@ class MemoryService {
 
         $cloudinary = new Cloudinary();
 
-        $uploadedFile = $cloudinary->uploadApi()->upload(
-            $file->getPathname(),
+       $uploadedFile = $cloudinary->uploadApi()->upload(
+        $file->getPathname(),
             [
                 'folder' => 'memories'
             ]
         );
-        // Stocke le fichier uploadé dans storage/app/public/memories et récupère son chemin relatif
-        //path = $file->store('memories', 'public');
 
-        //Crétion du souvenir dans la base de donnée
+        //Création du souvenir dans la base de donnée
         $memory = Memory::create([
             'title' => $data['title'], // prends la valeur title dans data et met la dans la colonne title
             'description' => $data['description'] ?? null, // si description existe (et n'est pas null) prend sa valeur sinon met null
             'media' => $uploadedFile['secure_url'],
+            'media_id' => $uploadedFile['public_id'],
             'memory_date' => $data['memory_date'] ?? null,
             'memory_time' => $data['memory_time'] ?? null,
             'location' => $data['location'] ?? null,
@@ -53,30 +52,41 @@ class MemoryService {
         ];
     }
 
-    public function update(array $data, $memoryId) {
-        
+    public function update(array $data, $memoryId)  {
         $memory = Memory::where('id', $memoryId)
-        ->where('user_id', auth()->id())
-        ->firstOrFail();
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
 
         $cloudinary = new Cloudinary();
 
-        // on vérifie si le fichier a été modifié et si c'est un fichier uploadé valide avant de le stocker
         if (isset($data['media']) && $data['media'] instanceof \Illuminate\Http\UploadedFile) {
 
-            $file = $data['media']; 
+            $file = $data['media'];
+
+            if (!empty($memory->media_id)) {
+                try {
+                    $cloudinary->uploadApi()->destroy($memory->media_id);
+            } catch (\Exception $e) {
+            }
+        }
 
             $uploadedFile = $cloudinary->uploadApi()->upload(
                 $file->getPathname(),
                 [
                     'folder' => 'memories'
-                ]
+                ]   
             );
 
-            $data['media'] = $uploadedFile['secure_url'];
+
+            $data['media'] = $uploadedFile->getSecureUrl();
+            $data['media_id'] = $uploadedFile->getPublicId();
+
+
+            unset($data['media']);
         } else {
             unset($data['media']);
         }
+
         $memory->update($data);
 
         return [
@@ -84,6 +94,27 @@ class MemoryService {
             'data' => [
                 'memory' => $memory
             ]
+        ];
+    }
+    public function delete($memoryId) {
+        $memory = Memory::where('id', $memoryId)
+            ->where('user_id', auth()->id())
+            ->firstOrFail();
+
+        $cloudinary = new Cloudinary();
+
+        if (!empty($memory->media_id)) {
+            try {
+            $cloudinary->uploadApi()->destroy($memory->media_id);
+        } catch (\Exception $e) {
+        // log mais ne bloque pas suppression DB
+        }
+    }
+
+        $memory->delete();
+
+        return [
+            'message' => 'Supprimé avec succès'
         ];
     }
 }

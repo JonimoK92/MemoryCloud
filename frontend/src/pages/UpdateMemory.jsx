@@ -78,11 +78,7 @@ export default function UpdateMemory() {
                     {fileView && (
                         <div className="preview_box">
                             <img
-                                src={
-                                    fileView.startsWith("blob:")
-                                        ? fileView
-                                        : `/storage/${fileView}`
-                                }
+                                src={fileView}
                                 alt="preview"
                             />
                         </div>
