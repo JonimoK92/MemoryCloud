@@ -1,8 +1,7 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useMemory, useUpdateMemory } from '../store/MemoryQuery';
-import '../css/updateMemory.css';
-
+import '../css/createMemory.css';
 
 export default function UpdateMemory() {
     const [title, setTitle] = useState("");
@@ -12,20 +11,23 @@ export default function UpdateMemory() {
 
     const { id } = useParams();
     const navigate = useNavigate();
-    const { isLoading, error, data } = useMemory(id);
-    const memory = data?.data?.memory
 
-    useEffect(() => {
-        if (memory) {
-            setTitle(memory.title)
-            setDescription(memory.description)
-            setFileView(memory.media)
-        }
-    }, [memory]);
+    const { isLoading, error, data } = useMemory(id);
     const updateMemory = useUpdateMemory();
 
-    async function handleUpdateMemory(event) {
+    const memory = data?.data?.memory;
+
+    useEffect(() => {
+        if (!memory) return;
+
+        setTitle(memory.title || "");
+        setDescription(memory.description || "");
+        setFileView(memory.media || null);
+    }, [memory]);
+
+    function handleUpdateMemory(event) {
         event.preventDefault();
+
         const formData = new FormData();
         formData.append("title", title);
         formData.append("description", description);
@@ -33,21 +35,25 @@ export default function UpdateMemory() {
         if (file) {
             formData.append("media", file);
         }
+
         updateMemory.mutate({ id, formData }, {
-            onSuccess: () => {
-                navigate("/")
-            }
+            onSuccess: () => navigate("/")
         });
     }
 
-    return (
-        <div className="update_page">
+    if (isLoading) return <p>Chargement...</p>;
+    if (error) return <p>Erreur de chargement</p>;
 
-            <div className="update_form">
+    return (
+        <div className="memory_page">
+
+            <div className="memory_form">
 
                 <form onSubmit={handleUpdateMemory}>
 
                     <h3>Modifier le souvenir</h3>
+
+                    <p className="separator"><span></span></p>
 
                     <div className="input_box">
                         <label>Titre</label>
@@ -90,8 +96,13 @@ export default function UpdateMemory() {
                         />
                     </div>
 
-                    <button type="submit">
-                        Mettre à jour
+                    <button
+                        type="submit"
+                        disabled={updateMemory.isPending}
+                    >
+                        {updateMemory.isPending
+                            ? "Mise à jour..."
+                            : "Mettre à jour"}
                     </button>
 
                 </form>

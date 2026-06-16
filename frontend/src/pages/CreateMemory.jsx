@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { useCreateMemory } from '../store/MemoryQuery';
 import '../css/createMemory.css';
 
@@ -14,28 +14,26 @@ export default function CreateMemory() {
     async function handleCreateMemory(event) {
         event.preventDefault();
 
-        console.log(file);
-        console.log(file?.type);
-
-        if (!file) {
-            alert("Fichier obligatoire");
-            return;
-        }
+        if (!title.trim() || !description.trim()) return;
+        if (!file) return;
 
         const formData = new FormData();
-        formData.append("title", title)
-        formData.append("description", description)
-        formData.append("media", file)
+        formData.append("title", title);
+        formData.append("description", description);
+        formData.append("media", file);
+
         createMemory.mutate(formData, {
             onSuccess: () => {
-                navigate("/")
+                setTitle("");
+                setDescription("");
+                setFile(null);
+                navigate("/");
             }
         });
     }
 
     return (
         <div className="memory_page">
-
             <div className="memory_form">
 
                 <form onSubmit={handleCreateMemory}>
@@ -50,10 +48,8 @@ export default function CreateMemory() {
                         <label>Titre</label>
                         <input
                             type="text"
-                            placeholder="Titre du souvenir"
                             value={title}
                             onChange={(e) => setTitle(e.target.value)}
-                            required
                         />
                     </div>
 
@@ -61,10 +57,8 @@ export default function CreateMemory() {
                         <label>Description</label>
                         <input
                             type="text"
-                            placeholder="Description"
                             value={description}
                             onChange={(e) => setDescription(e.target.value)}
-                            required
                         />
                     </div>
 
@@ -73,18 +67,16 @@ export default function CreateMemory() {
                         <input
                             type="file"
                             onChange={(e) => setFile(e.target.files[0])}
-                            required
                         />
                     </div>
 
                     <button type="submit">
-                        Créer
+                        {createMemory.isPending ? "Création..." : "Créer"}
                     </button>
 
                 </form>
 
             </div>
-
         </div>
     );
 }

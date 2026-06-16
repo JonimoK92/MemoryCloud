@@ -1,136 +1,86 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useNavigate, Link } from 'react-router-dom';
+import api from "../js/api";
 
 
 export function useMemories() {
-    const token = localStorage.getItem("authToken");
     return useQuery({
         queryKey: ["memories"],
         queryFn: async () => {
-            const response = await fetch("/api/memories", {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (!response.ok) {
-                throw new Error("Erreur chargement souvenirs");
-            }
-            return response.json();
+            const { data } = await api.get("/api/memories");
+            return data;
         }
     });
 }
 
 export function useMemory(id) {
-    const token = localStorage.getItem("authToken");
     return useQuery({
         queryKey: ["memory", id],
         queryFn: async () => {
-            const response = await fetch(`/api/memories/${id}`, {
-                headers: {
-                    Accept: "application/json",
-                    Authorization: `Bearer ${token}`,
-                },
-            });
-            if (!response.ok) {
-                throw new Error("Erreur chargement souvenirs");
-            }
-            return response.json();
+            const { data } = await api.get(`/api/memories/${id}`);
+            return data;
         }
     });
 }
 
 export function useCreateMemory() {
-    const queryClient = useQueryClient()
-    const token = localStorage.getItem("authToken");
+    const queryClient = useQueryClient();
     return useMutation({
         mutationFn: async (formData) => {
-            const response = await fetch("/api/memories", {
-                method: "POST",
+            await api.get("/sanctum/csrf-cookie");
+            const { data } = await api.post("/api/memories", formData, {
                 headers: {
+                    "Content-Type": "multipart/form-data",
                     Accept: "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: formData,
+                }
             });
-
-            const data = await response.json();
-
-            if (!response.ok) {
-                throw new Error(data.message || "Erreur API");
-            }
             return data;
-
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["memories"],
-            });
+            queryClient.invalidateQueries(["memories"]);
         },
         onError: (err) => {
-            console.log("FULL ERROR:", err.response?.data);
-            console.log("MUTATION ERROR:", err);
+            console.log("CREATE MEMORY ERROR:", err.response?.data || err.message);
         }
-    })
+    });
 }
 
 export function useUpdateMemory() {
     const queryClient = useQueryClient()
-    const token = localStorage.getItem("authToken");
     return useMutation({
         mutationFn: async ({ id, formData }) => {
-            const response = await fetch(`/api/memories/${id}`, {
-                method: "POST",
+            await api.get("/sanctum/csrf-cookie");
+            const { data } = await api.post(`/api/memories/${id}`, formData, {
                 headers: {
+                    "Content-Type": "multipart/form-data",
                     Accept: "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-                body: formData,
+                }
             });
-
-            if (!response.ok) {
-                throw new Error("Erreur changement souvenirs");
-            }
-            return response.json();
+            return data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["memories"],
-            });
+            queryClient.invalidateQueries(["memories"]);
         },
         onError: (err) => {
-            console.log("MUTATION ERROR:", err);
+            console.log("UPDATE MEMORY ERROR:", err.response?.data || err.message);
         }
     })
 }
 
 export function useDeleteMemory() {
     const queryClient = useQueryClient()
-    const token = localStorage.getItem("authToken");
     const navigate = useNavigate();
     return useMutation({
         mutationFn: async (id) => {
-            const response = await fetch(`/api/memories/${id}`, {
-                method: "DELETE",
-                headers: {
-                    Accept: "application/json",
-                    "Authorization": `Bearer ${token}`
-                },
-            });
-            if (!response.ok) {
-                throw new Error("Erreur chargement souvenirs");
-            }
-            //navigate("/memories")
-            return response.json()
-
+            await api.get("/sanctum/csrf-cookie");
+            const { data } = await api.delete(`/api/memories/${id}`);
+            return data;
         },
         onSuccess: () => {
-            queryClient.invalidateQueries({
-                queryKey: ["memories"],
-            });
+            queryClient.invalidateQueries(["memories"]);
         },
         onError: (err) => {
-            console.log("MUTATION ERROR:", err);
+            console.log("DELETE MEMORY ERROR:", err.response?.data || err.message);
         }
     });
 }

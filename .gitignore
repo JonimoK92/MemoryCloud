@@ -1,8 +1,26 @@
+# dependencies
 node_modules/
 backend/node_modules/
 frontend/node_modules/
 
-backend/public/storage
-storage/
+# Laravel
+backend/vendor/
+/backend/public/storage
+/backend/storage
+backend/bootstrap/cache/
+backend/.env.*/
 
+# env
 .env
+.env.*
+
+# logs
+*.log
+
+# build
+frontend/dist/
+frontend/build/
+
+# OS
+.DS_Store
+Thumbs.db
