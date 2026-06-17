@@ -23,7 +23,7 @@ Route::middleware('auth:sanctum')->group(function () {
     
     Route::get('/memories', [MemoryController::class, 'index']);
     Route::post('/memories', [MemoryController::class, 'store']);
-    Route::post('/memories/{id}', [MemoryController::class, 'update']);
+    Route::put('/memories/{id}', [MemoryController::class, 'update']);
     Route::delete('/memories/{id}', [MemoryController::class, 'destroy']);
 
     Route::get('/group', [GroupController::class, 'index']);

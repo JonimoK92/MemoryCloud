@@ -83,10 +83,8 @@ class MemoryService {
 
 
             unset($data['media']);
-        } else {
-            unset($data['media']);
-        }
-
+        } 
+        
         $memory->update($data);
 
         return [

@@ -49,7 +49,7 @@ export function useUpdateMemory() {
     const queryClient = useQueryClient()
     return useMutation({
         mutationFn: async ({ id, formData }) => {
-            await api.get("/sanctum/csrf-cookie");
+            await api.put("/sanctum/csrf-cookie");
             const { data } = await api.post(`/api/memories/${id}`, formData, {
                 headers: {
                     "Content-Type": "multipart/form-data",

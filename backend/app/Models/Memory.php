@@ -12,6 +12,7 @@ class Memory extends Model {
         'title',
         'description',
         'media',
+        'media_id',
         'memory_date',
         'memory_time',
         'location',
